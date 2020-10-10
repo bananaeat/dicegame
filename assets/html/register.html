@@ -16,7 +16,7 @@
 
             $('#btnReg').on('click', function(){
                 if($('#email').hasClass('is-invalid') || $('#password').hasClass('is-invalid') || $('#passwordconfirm').hasClass('is-invalid')){
-                    alert("未填写完成！");
+                    alert("Not completed！");
                     return;
                 }
                 var email = $("#email").val();
@@ -35,7 +35,7 @@
                         if(res.status == "ok")
                             window.location = "/login";
                         else if(res.status == "failed")
-                            alert("注册失败，请联系网站管理员！")
+                            alert("Failed to sign up, please contact the administrator of the website！")
                     }
                 })
             });
@@ -111,30 +111,30 @@
         <div class="jumbotron col-6 offset-3" style="margin-top: 18rem; padding-bottom: 1rem;">
             <form style="margin-top: -2rem;">
                 <div class="form-group">
-                    <label for="email">电子邮箱地址</label>
-                    <input type="email" class="form-control" id="email" placeholder="请输入邮箱地址">
-                    <div class="invalid-feedback d-none" id="emailhelp">邮箱地址已被使用或无效！</div>
+                    <label for="email">Email address</label>
+                    <input type="email" class="form-control" id="email" placeholder="Please input your email address">
+                    <div class="invalid-feedback d-none" id="emailhelp">Email address is already in use or invalid！</div>
                 </div>
                 <div class="form-group">
-                    <label for="username">用户名</label>
-                    <input type="text" class="form-control" id="username" placeholder="请输入用户名">
+                    <label for="username">Username</label>
+                    <input type="text" class="form-control" id="username" placeholder="Please input username">
                 </div>
                 <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" class="form-control" id="password" placeholder="请输入密码">
-                    <div class="invalid-feedback d-none" id="passwordhelp">密码不符合要求：密码须在8位以上，同时包括大小写字母和数字。</div>
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Please input password">
+                    <div class="invalid-feedback d-none" id="passwordhelp">Password invalid: it must contain more than 8 characters with both uppercase and lowercase letters and numbers.</div>
                 </div>
                 <div class="form-group">
-                    <label for="passwordconfirm">确认密码</label>
-                    <input type="password" class="form-control" id="passwordconfirm" placeholder="请再次输入密码">
-                    <span class="invalid-feedback d-none" id="passwordconfirmhelp">两次密码输入不一致，请重新输入</span>
+                    <label for="passwordconfirm">Confirm Password</label>
+                    <input type="password" class="form-control" id="passwordconfirm" placeholder="Please input password again">
+                    <span class="invalid-feedback d-none" id="passwordconfirmhelp">Confirm password does not match with password</span>
                 </div>
-                <div class="text-muted float-left mt-1">骰子游戏v1.0 注册</div>
+                <div class="text-muted float-left mt-1">Dicegame Sign Up</div>
                 <div class="form-group d-flex justify-content-end">
-                    <button type="button" class="btn btn-primary col-7 px-4" id="btnReg" disabled="disabled">注册</button>
+                    <button type="button" class="btn btn-primary col-7 px-4" id="btnReg" disabled="disabled">Sign up</button>
                 </div>
                 <div class="form-group d-flex justify-content-end">
-                    <button type="button" class="btn btn-secondary px-4" id="btnLogin">已有帐号，跳转到登录界面</button>
+                    <button type="button" class="btn btn-secondary px-4" id="btnLogin">I already signed up, go to sign in</button>
                 </div>
             </form>
         </div>
