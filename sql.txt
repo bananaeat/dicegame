@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS `users`(
+   `userid` INT UNSIGNED AUTO_INCREMENT,
+   `score` INT UNSIGNED DEFAULT 0, 
+   `email` VARCHAR(255) NOT NULL,
+   `username` VARCHAR(255) NOT NULL,
+   `password` VARCHAR(255) NOT NULL,
+   `salt` VARCHAR(255),
+   `created_at` DATETIME,
+   `updated_at` DATETIME,
+   `deleted_at` DATETIME,
+   PRIMARY KEY (`userid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
