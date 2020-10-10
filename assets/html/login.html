@@ -38,11 +38,11 @@
                                     if(res.status == "ok")
                                         window.location = "/v1/mainmenu"
                                     else if(res.status == "failed")
-                                        alert("登录失败，邮箱不存在或密码错误！")
+                                        alert("Login failed，Email is not registered or wrong password！")
                                 }
                             })
                         } else {
-                            alert("登录失败，验证码错误！")
+                            alert("Login Failed, wrong verification code!")
                         }
                     }
                 });
@@ -50,32 +50,32 @@
             })
         });
     </script>
-    <title>登录</title>
+    <title>Login</title>
 </head>
 <body>
     <div class="container" >
         <div class="jumbotron col-6 offset-3 shadow" style="margin-top: 18rem; padding-bottom: 1rem;">
             <form style="margin-top: -2rem;">
                 <div class="form-group">
-                    <label for="email">邮箱地址</label>
-                    <input type="email" class="form-control" id="email" placeholder="请输入邮箱地址">
+                    <label for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" placeholder="Please input your email address">
                 </div>
                 <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder=""Please input your password">
                 </div>
                 <div class="form-group">
                     <div class="form-group">
-                        <label for="captcha">验证码</label>
-                        <input type="text" class="form-control" id="captcha" placeholder="请输入验证码">
+                        <label for="captcha">Verification Code</label>
+                        <input type="text" class="form-control" id="captcha" placeholder="Please input your verification code">
                     </div>
                     <img src="/captcha/{{ .CaptchaID }}.png" alt="Captcha image">
                     <span class="d-none" id="captchaID">{{ .CaptchaID }}</span>
                 </div>
                 <div class="text-muted float-left mt-1">DiceGameV1.0</div>
                 <div class="form-group d-flex justify-content-end">
-                    <button type="button" class="btn btn-primary px-5 mr-1" id="btnLogin">登录</button>
-                    <button type="button" class="btn btn-secondary px-4" id="btnReg">注册</button>
+                    <button type="button" class="btn btn-primary px-5 mr-1" id="btnLogin">Sign in</button>
+                    <button type="button" class="btn btn-secondary px-4" id="btnReg">Sign up</button>
                 </div>
             </form>
         </div>
