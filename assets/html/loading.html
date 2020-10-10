@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <title>加载中</title>
+    <style>
+        html, body{
+            height: 100%;
+        }
+
+        .container{
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .progress{
+            width: 100%;
+        }
+
+    </style>
+    <script>
+        var progress = 0
+        var total = 0
+
+        function loadImg(picpath){
+            var img = new Image();
+            img.src = picpath;
+            img.onload = function(){
+                progress = progress + 1;
+                $("#progressnum").text(progress);
+                $(".progress-bar").css("width", parseInt(100 * progress/total) + "%");
+            }
+        }
+
+        function loadAudio(audiopath){
+            var audio = new Audio();
+            audio.src = audiopath;
+            audio.load();
+            audio.oncanplaythrough = function(){
+                console.log(progress);
+                progress = progress + 1;
+                $("#progressnum").text(progress);
+                $(".progress-bar").css("width", parseInt(100 * progress/total) + "%");
+            }
+        }
+
+        function loadAllImg(){
+            $.ajax({
+                type:"get",
+                async: true,
+                url: "/v1/loadimgs",
+                dataType: "json",
+                success: function(data){
+                    total = data.length;
+                    console.log(total);
+                    $("#progresstotal").text(total);
+                    $("#progressnum").text(progress);
+                    for(var key in data){
+                        loadImg(data[key]);
+                        console.log(data[key]);
+                    }
+                }
+            })
+        }
+
+        function loadAllAudio(){
+            $.ajax({
+                type:"get",
+                async: true,
+                url: "/v1/loadaudios",
+                dataType: "json",
+                success: function(data){
+                    total = data.length;
+                    console.log(total);
+                    $("#progresstotal").text(total);
+                    $("#progressnum").text(progress);
+                    for(var key in data){
+                        loadAudio(data[key]);
+                        console.log(data[key]);
+                    }
+                }
+            })
+        }
+
+        $(function(){
+            loadAllImg();
+            var x = setInterval(function(){
+                if($("#progressnum").text() == $("#progresstotal").text()){
+                    progress = 0;
+                    $(".loadtype").text("加载音频中...");
+                    $("#progressnum").text(0);
+                    $("#progresstotal").text(100);
+                    loadAllAudio();
+                    clearInterval(x)
+                    setInterval(function(){
+                        if($("#progressnum").text() == $("#progresstotal").text()){
+                            window.location = "/v1/dicegame";
+                        }
+                    }, 1000)
+                }
+            }, 1000);
+        })
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="loadtype">
+            加载图片中...
+        </div>
+        <div class="progress">
+            <div class="progresstext text-info">
+                <span id="progressnum">0</span>/<span id="progresstotal">100</span>
+            </div>
+            <div class="progress-bar">
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <title>骰子游戏</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body{
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #maingame{
+            height: 100%;
+            width: 100%;
+        }
+
+        #upperhalf{
+            height: 80%;
+            display: flex;
+        }
+
+        #lowerhalf{
+            height: 20%;
+            background-color: lightcyan;
+        }
+
+        #equip{
+            height: 100%;
+            width: 216.5px;
+            display: flex;
+            flex-direction: column;
+            background-color: lightgray;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #sword{flex-grow: 1;}
+        #swordpic{width: 25vh;}
+        #swordpic img{width: 100%; height: auto; z-index: 1; position: relative;}
+        #sworddice{width: 10vh;}
+
+        #shield{flex-grow: 1;}
+        #shieldpic{width: 25vh;}
+        #shieldpic img{width: 100%; height: auto; z-index: 1; position: relative;}
+        #shielddice{width: 10vh;}
+
+        #combat{
+            height: 100%;
+            background-color: white;
+            flex: 1;
+            display: flex;
+        }
+        #enemypic{
+            display: flex;
+            align-items: center;
+        }
+        #enemypic img{height: 100%;}
+        #enemystatus{
+            /* display: flex;
+            align-content: center;
+            justify-content: center; */
+            font-size: 40px;
+            width: 240px;
+        }
+
+        #status{
+            height: 100%;
+            width: 320px;
+            background-color: lightgray;
+            font-size: 3rem;
+        }
+
+        #lowerhalf{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #lowerhalf > div{
+            display: flex;
+            align-items: center;
+        }
+
+        #btnroll{
+            height: 90%;
+            width: 200px;
+        }
+
+        #btnconfirmroll{
+            height: 90%;
+            width: 100px;
+        }
+
+        #btnrerollone{
+            height: 90%;
+            width: 200px;
+        }
+
+        #dices{
+            height: 80%;
+        }
+
+
+        @keyframes diceanim{
+            from {opacity: 0; height: 0%;}
+            to {opacity: 1; height: 100%;}
+        }
+
+        .dicepic{
+            margin-left: 1rem;
+            animation: diceanim 0.4s;
+        }
+
+        .edicepic{
+            margin-left: 1rem;
+            animation: diceanim 0.4s;
+        }
+
+        #newequipments{
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+
+        #newequipments div{
+            width: 30%;
+        }
+
+        #newequipments div img{
+            width: 100%;
+        }
+
+        #equipscaled{
+            margin-top: 4%;
+            margin-left: 10%;
+            height: 80%;
+            position: absolute;
+            z-index: 2;
+        }
+
+        #equipscaled img{
+            height: 100%;
+            width: auto;
+        }
+
+        
+    </style>
+    <script>
+        function weapondicepic(weaponid, diceno, diceside) {
+            return "/imgs/weapons/" + weaponid + "-" + diceno + "-" + diceside + ".png";
+        }
+
+        function armordicepic(armorid, diceno, diceside) {
+            return "/imgs/armors/" + armorid + "-" + diceno + "-" + diceside + ".png";
+        }
+
+        function monsterdicepic(monsterid, diceno, diceside){
+            return "/imgs/monsters/" + monsterid + "-" + diceno + "-" + diceside + ".png";
+        }
+
+        function monsterpic(monsterid){
+            return "/imgs/monsters/" + monsterid + ".png";
+        }
+
+        function equipmentpic(type, id){
+            if(type == "weapon")
+                return "/imgs/weapons/" + id +".png";
+            if(type == "armor")
+                return "/imgs/armors/" + id +".png";
+        }
+
+        function adddicepic(picpath) {
+            var dicehtml = $("#dices").html();
+            dicehtml += "<img src='" + picpath + "' alt='dicepic' class='dicepic'>"
+            $("#dices").html(dicehtml);
+        }
+
+        function addedicepic(picpath){
+            var dicehtml = $("#edices").html();
+            dicehtml += "<img src='" + picpath + "' alt='edicepic' class='edicepic'>"
+            $("#edices").html(dicehtml);
+        }
+
+        $(function(){
+            if (window["WebSocket"]) {
+                conn = new WebSocket("ws://" + document.location.host + "/v1/game");
+                conn.onclose = function (evt) {
+                    alert("与服务器的连接已断开！")
+                    window.location = "/v1/mainmenu"
+                };
+                conn.onmessage = function (evt) {
+                    var msg = JSON.parse(evt.data);
+                    console.log(evt.data);
+                    if(msg.type == "error"){
+                        alert(msg.object);
+                    }
+                    if(msg.type == "playerstatus"){
+                        var player = msg.object;
+                        $("#dicesound").html('<audio autoplay="autoplay"><source src="/audio/dicesound_02.mp3"' 
+		                    + 'type="audio/mp3"/><source src="/audio/dicesound_02.mp3" type="audio/mpeg"/></audio>')
+                        $("#btnroll").addClass("disabled");
+                        $("#btnroll").attr("disabled", "disabled");
+                        setTimeout(function(){
+                            $("#btnconfirmroll").removeClass("disabled");
+                            $("#btnconfirmroll").removeAttr("disabled");
+                            $("#btnroll").removeClass("disabled");
+                            $("#btnroll").removeAttr("disabled");
+                            $("#hp").text(player.hp);
+                            $("#atk").text(player.atk);
+                            $("#def").text(player.def);
+                            $("#score").text(player.score);
+                            $("#rerollchance").text(player.rerollnum);
+                            $("#dices").html("");
+                            for(var key in player.weapondices){
+                                for(var i in player.weapondices[key]){
+                                    adddicepic(weapondicepic(key, i, player.weapondices[key][i]))
+                                }
+                            }
+                            for(var key in player.armordices){
+                                for(var i in player.armordices[key]){
+                                    adddicepic(armordicepic(key, i, player.armordices[key][i]))
+                                }
+                            }
+                            if(player.rerollnum <= 0){
+                                $("#btnroll").addClass("disabled");
+                                $("#btnroll").attr("disabled", "disabled");
+                            }
+                        }, 2000);
+                    }
+                    
+                    if(msg.type == "monsterstatus"){
+                        var monster = msg.object;
+                        $("#dicesound").html('<audio autoplay="autoplay"><source src="/audio/dicesound_03.mp3"' 
+		                    + 'type="audio/mp3"/><source src="/audio/dicesound_03.mp3" type="audio/mpeg"/></audio>');
+                        setTimeout(function(){
+                            $("#ename").text(monster.name);
+                            $("#ehp").text(monster.hp);
+                            $("#eatk").text(monster.atk);
+                            $("#edef").text(monster.def);
+                            $("#edices").html("");
+                            for(var key in monster.dices){
+                                for(var i in monster.dices[key]){
+                                    addedicepic(monsterdicepic(key, i, monster.dices[key][i]))
+                                }
+                            }
+                        }, 2000);
+                    }
+                    
+                    if(msg.type == "combatresult"){
+                        setTimeout(function(){
+                            var php = msg.object.player.hp;
+                            var mhp = msg.object.monster.hp;
+                            $("#combatsound").html('<audio autoplay="autoplay"><source src="/audio/combat_01.mp3"' 
+		                        + 'type="audio/mp3"/><source src="/audio/combat_01.mp3" type="audio/mpeg"/></audio>');
+                            setTimeout(function(){
+                                $("#hp").text(php);
+                                $("#ehp").text(mhp);
+                                $("#dices").html("");
+                                $("#btnroll").removeClass("disabled");
+                                $("#btnroll").removeAttr("disabled");
+                                $("#btnconfirmroll").addClass("disabled");
+                                $("#btnconfirmroll").attr("disabled","disabled");
+                                $("#rerollchance").text("2");
+                                setTimeout(function(){
+                                    $("#atk").text(0);
+                                    $("#def").text(0);
+                                    $("#eatk").text(0);
+                                    $("#edef").text(0);
+                                }, 400);
+                            }, 300);
+                        }, 2100);
+                    }
+
+                    if(msg.type == "winresult"){
+                        setTimeout(function(){
+                            $("#winModal").modal("toggle");
+                            $("#newequipments").html("");
+                            var newequipmentsstr = ""
+                            for(var key in msg.object.newequipmentsid){
+                                var type = msg.object.newequipmentsid[key].type;
+                                var id = msg.object.newequipmentsid[key].id;
+                                newequipmentsstr += '<div class="equipment">' +
+                                                        '<div class="equipmentinfo d-none"><span class="type">' + type + '</span><span class="id">' + id +'</span></div>' +
+                                                        '<img src="' + equipmentpic(type, id) + '" alt="winpic" class="winpic">' +
+                                                        '<button type="button" class="btn btn-primary btn-block btnreplace">替换</button>' +
+                                                    '</div>';
+                            }
+                            $("#newequipments").html(newequipmentsstr);
+                            var monster = msg.object.newmonsterid;
+                            $("#enemypic").html('<img src="' + monsterpic(monster) + '" alt="enemypic">');
+                            $("#ehp").text(msg.object.newmonsterhp);
+                            $("#rerollonechance").text(1);
+                            $("#btnrerollone").removeAttr("disabled");
+                            console.log("reset");
+                        }, 3000)
+                    }
+
+                    if(msg.type == "loseresult"){
+                        setTimeout(function(){
+                            alert("You lose!!");
+                            alert("Your final score is:" + msg.object.score);
+                            window.location = "/v1/mainmenu";
+                        }, 3000)
+                    }
+
+                    if(msg.type == "updatescore"){
+                        setTimeout(function(){
+                            var score = msg.object;
+                            $("#score").text(score);
+                        }, 2500);
+                    }
+
+                    if(msg.type == "reroll"){
+                        var player = msg.object.player;
+                        var diceno = msg.object.rerolldice;
+                        var diceside = msg.object.rerolldiceside;
+                        $("#dicesound").html('<audio autoplay="autoplay"><source src="/audio/dicesound_01.mp3"' 
+                            + 'type="audio/mp3"/><source src="/audio/dicesound_01.mp3" type="audio/mpeg"/></audio>');
+                        $("#dices").find("img").eq(diceno).hide();
+                        setTimeout(function(){
+                            $("#atk").text(player.atk);
+                            $("#def").text(player.def);
+                            var dicehtml = $("#dices").find("img").eq(diceno).prop('outerHTML');;
+                            var newdicehtml =  dicehtml.substring(0, dicehtml.indexOf('-', dicehtml.indexOf('-') + 1) + 1) +
+                                    diceside.toString() +
+                                dicehtml.substring(dicehtml.indexOf('.'));
+                            console.log(newdicehtml);
+                            $("#dices").find("img").eq(diceno).before(newdicehtml);
+                            $("#dices").find("img").eq(diceno).show();
+                            $("#dices").find("img").eq(diceno).css("margin-top", "");
+                            $("#dices").find("img").eq(diceno+1).remove();
+                        }, 1000);
+                        $("#rerollonechance").text(player.rerollchance);
+                        $("#btnrerollone").trigger("click");
+                        if($("#rerollonechance").text() <= 0){
+                            $("#btnrerollone").attr("disabled", "disabled");
+                        }
+                    }
+                };
+            } else {
+                alert("你的浏览器不支持WebSockets.");
+                window.location = "/v1/mainmenu"
+            }
+
+            $("#btnroll").on("click", function(){
+                conn.send("roll");
+                $("#btnconfirmroll").addClass("disabled");
+                $("#btnconfirmroll").attr("disabled","disabled");
+            })
+
+            $("#btnconfirmroll").on("click", function(){
+                conn.send("confirm");
+                $("#btnconfirmroll").addClass("disabled");
+                $("#btnconfirmroll").attr("disabled","disabled");
+                $("#btnroll").addClass("disabled");
+                $("#btnroll").attr("disabled","disabled");
+            })
+
+            $("#newequipments").on("click", ".btnreplace", function(){
+                if(!$(this).parent().hasClass("replaced")){
+                    $(this).parent().siblings().children(".btnreplace").attr("disabled", "disabled");
+                    $(this).parent().siblings().children(".btnreplace").removeClass("btn-primary");
+                    $(this).parent().siblings().children(".btnreplace").addClass("btn-secondary");
+                    $(this).parent().addClass("replaced");
+                    $(this).parent().siblings().removeClass("replaced");
+                } else {
+                    $(this).parent().removeClass("replaced");
+                    $(this).parent().siblings().children(".btnreplace").removeAttr("disabled");
+                    $(this).parent().siblings().children(".btnreplace").addClass("btn-primary");
+                    $(this).parent().siblings().children(".btnreplace").removeClass("btn-secondary");
+                }
+            });
+
+            $("#btnconfirmreplace").on("click", function(){
+                if($("#newequipments").children(".replaced").length == 0)
+                    alert("Please choose an equipment to replace");
+                else {
+                    var i = $("#newequipments").children(".replaced").index();
+                    conn.send("replace " + i);
+                    var type = $("#newequipments").children(".replaced").find(".type").text()
+                    var id = $("#newequipments").children(".replaced").find(".id").text()
+                    if($("#newequipments").children(".replaced").find(".type").text() == "weapon"){
+                        $("#swordpic").html('<img src="' + equipmentpic(type, id) + '" alt="weapon">')
+                    }
+                    if($("#newequipments").children(".replaced").find(".type").text() == "armor"){
+                        $("#shieldpic").html('<img src="' + equipmentpic(type, id) + '" alt="armor">')
+                    }
+                    $("#winModal").modal("toggle");
+                }
+            });
+
+            $("#btnrerollone").on("click", function(){
+                if(!$(this).hasClass("chosen")){
+                    $(this).addClass("chosen");
+                    $(this).removeClass("btn-info");
+                    $(this).addClass("btn-warning");
+                    $("#rerollonechance").removeClass("text-warning");
+                    $("#rerollonechance").addClass("text-primary");
+                    $("#dices").on("mouseenter", "img", function(){
+                        $(this).css("margin-top", "-5rem");
+                    })
+                    $("#dices").on("mouseleave", "img", function(){
+                        $(this).css("margin-top", "");
+                    })
+                    $("#dices").on("click", "img", function(){
+                        var i = $(this).index();
+                        conn.send("reroll " + i);
+                    })
+                } else {
+                    $(this).removeClass("chosen");
+                    $(this).addClass("btn-info");
+                    $(this).removeClass("btn-warning");
+                    $("#rerollonechance").addClass("text-warning");
+                    $("#rerollonechance").removeClass("text-primary");
+                    $("#dices").off("mouseenter", "img");
+                    $("#dices").off("mouseleave", "img");
+                    $("#dices").off("click", "img");
+                }
+            })
+
+            $("#equip").on("mouseenter", "img", function(){
+                var img = $(this).clone(false, false)
+                $("#equipscaled").append(img);
+            });
+
+            $("#equip").on("mouseleave", "img", function(){
+                $("#equipscaled").empty();
+            });
+        })
+    </script>
+</head>
+<body>
+    <div id="maingame">
+        <div id="equipscaled">
+            <!-- <img src="/imgs/weapons/1.png" alt=""> -->
+        </div>
+        <div id="upperhalf">
+            <div id="equip" class="p-2">
+                <div id="sword">
+                    <div id="swordpic" class="p-3">
+                        <img src="/imgs/weapons/0.png" alt="weapon">
+                    </div>
+                </div>
+                <div id="shield">
+                    <div id="shieldpic" class="p-3">
+                        <img src="/imgs/armors/0.png" alt="armor">
+                    </div>
+                </div>
+            </div>
+            <div id="combat">
+                <div id="enemypic">
+                    <img src="/imgs/monsters/0.png" alt="enemypic">
+                </div>
+                <div id="enemystatus">
+                    <div><span id="ename">史莱姆</span></div>
+                    <div>生命值 <span id="ehp">3</span></div>
+                    <div>攻击力 <span id="eatk">0</span></div>
+                    <div>防御力 <span id="edef">0</span></div> 
+                    <div id="edices"></div>           
+                </div>
+            </div>
+            <div id="status">
+                生命值 <span id="hp">5</span> <br>
+                攻击力 <span id="atk">0</span> <br>
+                防御力 <span id="def">0</span> <br>
+                分数 <span id="score">0</span>
+            </div>
+        </div>
+        <div id="lowerhalf">
+            <div class="h-100">
+                <button type="button" class="btn btn-primary" id="btnroll">掷骰子 <br>（你还有<span id="rerollchance" class="text-warning">2</span>次重掷机会）</button>
+                <button type="button" class="btn btn-secondary disabled" id="btnconfirmroll">确认骰子</button>
+                <div id="dices"></div>
+            </div>
+            <button type="button" class="btn btn-info" id="btnrerollone">重掷某颗骰子 <br>（你还有<span id="rerollonechance" class="text-warning">1</span>次重掷机会）</button>
+            <div id="dicesound" style="display: none;"></div>
+            <div id="combatsound" style="display: none;"></div>
+        </div>
+        <div class="modal fade" id="winModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title">你赢得了这场战斗的胜利！</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="newequipments">
+                            <div class="equipment">
+                                <div class="equipmentinfo d-none"><span class="type"></span><span class="id"></span></div>
+                                <img src="/imgs/placeholder.jpg" alt="winpic" class="winpic">
+                                <button type="button" class="btn btn-primary btn-block btnreplace">替换</button>
+                            </div>
+                            <div class="equipment">
+                                <img src="/imgs/placeholder.jpg" alt="winpic" class="winpic">
+                                <button type="button" class="btn btn-primary btn-block btnreplace">替换</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">跳过</button>
+                    <button type="button" class="btn btn-primary" id="btnconfirmreplace">确认替换/升级</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

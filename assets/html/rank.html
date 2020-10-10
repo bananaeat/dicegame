@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <title>排行榜</title>
+    <style>
+        #title{
+            text-align: center;
+            margin-top: 3%;
+        }
+
+        #container{
+            display: flex;
+            height: 100%;
+            margin: 50px auto;
+            justify-content: center;
+        }
+
+        #ranklist{
+            width: 500px;
+        }
+
+        .list-group-item{
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+    <script>
+        function GetRank(){
+            var startrank = $("#ranklist").children(".list-group-item").eq(1).children(".rank").text();
+            var username = $("#userrank").children(".username").text().trim();
+            $.ajax({
+                    type: "get",
+                    url: "/v1/rank",
+                    dataType: 'json',
+                    data:{
+                        startrank: startrank,
+                        username: username,
+                    },
+                    success: function(res){
+                        if(res.status == "ok"){
+                            console.log(res);
+                            var ranklist = res.ranklist;
+                            var rank = res.rank;
+                            var score = res.score;
+                            $("#userrank .rank").text(rank);
+                            $("#userrank .score").text(score);
+                            for(var i = 0; i < 10; i++){
+                                if($("#ranklist").children(".list-group-item").eq(i+1).children(".rank").text() == rank)
+                                    $("#ranklist").children(".list-group-item").eq(i+1).addClass("active");
+                                $("#ranklist").children(".list-group-item").eq(i+1).children(".username").text(ranklist[i].username);
+                                if(ranklist[i].username != "")
+                                    $("#ranklist").children(".list-group-item").eq(i+1).children(".score").text(ranklist[i].score);
+                            }
+                        } else if (res.status == "failed")
+                            alert("获取排行榜失败")
+                    }
+                })
+        }
+
+        $(function(){
+            GetRank();
+
+            $("#btnnextpage").on("click", function(){
+                $("#btnlastpage").removeAttr("disabled");
+                for(var i = 0; i < 10; i++){
+                    var r = $("#ranklist").children(".list-group-item").eq(i+1).children(".rank");
+                    r.text(parseInt(r.text()) + 10);
+                    $("#ranklist").children(".list-group-item").eq(i+1).children(".score").text("");
+                    $("#ranklist").children(".list-group-item").eq(i+1).removeClass("active");
+                }
+                GetRank();
+            });
+
+            $("#btnlastpage").on("click", function(){
+                for(var i = 0; i < 10; i++){
+                    var r = $("#ranklist").children(".list-group-item").eq(i+1).children(".rank");
+                    r.text(parseInt(r.text()) - 10);
+                    $("#ranklist").children(".list-group-item").eq(i+1).children(".score").text("");
+                    $("#ranklist").children(".list-group-item").eq(i+1).removeClass("active");
+                }
+                GetRank();
+                if($("#ranklist").children(".list-group-item").eq(1).children(".rank").text() <= 1){
+                    $(this).attr("disabled", "disabled");
+                }
+            });
+
+            $("#btnmainmenu").on("click", function(){
+                window.location = "/v1/mainmenu";
+            })
+        })
+    </script>
+</head>
+<body>
+    <h2 id="title">排行榜</h2>
+    <div id="container">
+        <ul class="list-group" id="ranklist">
+            <li class="list-group-item"><span class="rank">名次</span><span class="username">用户名</span><span class="score">最高分</span></li>
+            <li class="list-group-item"><span class="rank">1</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">2</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">3</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">4</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">5</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">6</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">7</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">8</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">9</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item"><span class="rank">10</span><span class="username"></span><span class="score"></span></li>
+            <li class="list-group-item">...</li>
+            <li class="list-group-item active" id = "userrank"><span class="rank">101</span><span class="username">{{ . }}</span><span class="score"></span></li>
+            <div class="btn-group">
+                <button class="btn btn-info" id="btnlastpage" disabled>上一页</button>
+                <button class="btn btn-info" id="btnnextpage">下一页</button>
+            </div>
+            <button class="btn btn-danger" id="btnmainmenu">返回主菜单</button>
+        </ul>
+        
+    </div>
+    
+</body>
+</html>

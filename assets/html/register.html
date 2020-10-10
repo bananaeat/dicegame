@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery-3.4.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script>
+        $(function(){
+            $("#btnLogin").on('click', function(){
+                window.location = "/login";
+                return false;
+            });
+
+            $('#btnReg').on('click', function(){
+                if($('#email').hasClass('is-invalid') || $('#password').hasClass('is-invalid') || $('#passwordconfirm').hasClass('is-invalid')){
+                    alert("未填写完成！");
+                    return;
+                }
+                var email = $("#email").val();
+                var username = $("#username").val();
+                var password = $("#password").val();
+                $.ajax({
+                    type: "post",
+                    url: "/register",
+                    dataType: 'json',
+                    data:{
+                        email: email,
+                        username: username,
+                        password: password,
+                    },
+                    success: function(res){
+                        if(res.status == "ok")
+                            window.location = "/login";
+                        else if(res.status == "failed")
+                            alert("注册失败，请联系网站管理员！")
+                    }
+                })
+            });
+
+            $("#email").on('blur', function(){
+                var email = $("#email").val();
+                $.ajax({
+                    type: "get",
+                    url: "/verifyemail",
+                    data: {email: email},
+                    dataType: "json",
+                    success: function (res) {
+                        if(res.status == 'ok'){
+                            $("#email").removeClass("is-invalid");
+                            $("#email").addClass("is-valid");
+                            $("#emailhelp").addClass("d-none");
+                            $("#btnReg").removeAttr("disabled");
+                        } else {
+                            $("#email").removeClass("is-valid");
+                            $("#email").addClass("is-invalid");
+                            $("#emailhelp").removeClass("d-none");
+                            $("#btnReg").attr("disabled", "disabled");
+                        }
+                    }
+                });
+            });
+
+            $("#password").on('blur', function(){
+                $("#passwordconfirm").trigger('blur');
+                var password = $("#password").val();
+                $.ajax({
+                    type: "get",
+                    url: "/verifypassword",
+                    data: {password: password},
+                    dataType: "json",
+                    success: function (res) {
+                        if(res.status == 'ok'){
+                            $("#password").removeClass("is-invalid");
+                            $("#password").addClass("is-valid");
+                            $("#passwordhelp").addClass("d-none");
+                            $("#btnReg").removeAttr("disabled");
+                        } else {
+                            $("#password").removeClass("is-valid");
+                            $("#password").addClass("is-invalid");
+                            $("#passwordhelp").removeClass("d-none");
+                            $("#btnReg").attr("disabled", "disabled");
+                        }
+                    }
+                });
+            });
+
+            $("#passwordconfirm").on('blur', function(){
+                var password = $("#password").val();
+                var passwordconfirm = $("#passwordconfirm").val();
+                if(password == passwordconfirm){
+                    $("#passwordconfirm").removeClass("is-invalid");
+                    $("#passwordconfirm").addClass("is-valid");
+                    $("#passwordconfirmhelp").addClass("d-none");
+                    $("#btnReg").removeAttr("disabled");
+                } else {
+                    $("#passwordconfirm").removeClass("is-valid");
+                    $("#passwordconfirm").addClass("is-invalid");
+                    $("#passwordconfirmhelp").removeClass("d-none");
+                    $("#btnReg").attr("disabled", "disabled");
+                }
+            });
+        });
+    </script>
+    <title>注册</title>
+</head>
+<body>
+    <div class="container" >
+        <div class="jumbotron col-6 offset-3" style="margin-top: 18rem; padding-bottom: 1rem;">
+            <form style="margin-top: -2rem;">
+                <div class="form-group">
+                    <label for="email">电子邮箱地址</label>
+                    <input type="email" class="form-control" id="email" placeholder="请输入邮箱地址">
+                    <div class="invalid-feedback d-none" id="emailhelp">邮箱地址已被使用或无效！</div>
+                </div>
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" class="form-control" id="username" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" class="form-control" id="password" placeholder="请输入密码">
+                    <div class="invalid-feedback d-none" id="passwordhelp">密码不符合要求：密码须在8位以上，同时包括大小写字母和数字。</div>
+                </div>
+                <div class="form-group">
+                    <label for="passwordconfirm">确认密码</label>
+                    <input type="password" class="form-control" id="passwordconfirm" placeholder="请再次输入密码">
+                    <span class="invalid-feedback d-none" id="passwordconfirmhelp">两次密码输入不一致，请重新输入</span>
+                </div>
+                <div class="text-muted float-left mt-1">骰子游戏v1.0 注册</div>
+                <div class="form-group d-flex justify-content-end">
+                    <button type="button" class="btn btn-primary col-7 px-4" id="btnReg" disabled="disabled">注册</button>
+                </div>
+                <div class="form-group d-flex justify-content-end">
+                    <button type="button" class="btn btn-secondary px-4" id="btnLogin">已有帐号，跳转到登录界面</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
