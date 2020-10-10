@@ -7,7 +7,7 @@
     <script src="/js/jquery-3.4.1.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="/js/bootstrap.min.js"></script>
-    <title>排行榜</title>
+    <title>RANK</title>
     <style>
         #title{
             text-align: center;
@@ -58,7 +58,7 @@
                                     $("#ranklist").children(".list-group-item").eq(i+1).children(".score").text(ranklist[i].score);
                             }
                         } else if (res.status == "failed")
-                            alert("获取排行榜失败")
+                            alert("Failed to get ranklist")
                     }
                 })
         }
@@ -97,10 +97,10 @@
     </script>
 </head>
 <body>
-    <h2 id="title">排行榜</h2>
+    <h2 id="title">Ranklist</h2>
     <div id="container">
         <ul class="list-group" id="ranklist">
-            <li class="list-group-item"><span class="rank">名次</span><span class="username">用户名</span><span class="score">最高分</span></li>
+            <li class="list-group-item"><span class="rank">名次</span><span class="username">Username</span><span class="score">Highest rank</span></li>
             <li class="list-group-item"><span class="rank">1</span><span class="username"></span><span class="score"></span></li>
             <li class="list-group-item"><span class="rank">2</span><span class="username"></span><span class="score"></span></li>
             <li class="list-group-item"><span class="rank">3</span><span class="username"></span><span class="score"></span></li>
@@ -114,10 +114,10 @@
             <li class="list-group-item">...</li>
             <li class="list-group-item active" id = "userrank"><span class="rank">101</span><span class="username">{{ . }}</span><span class="score"></span></li>
             <div class="btn-group">
-                <button class="btn btn-info" id="btnlastpage" disabled>上一页</button>
-                <button class="btn btn-info" id="btnnextpage">下一页</button>
+                <button class="btn btn-info" id="btnlastpage" disabled>Last page</button>
+                <button class="btn btn-info" id="btnnextpage">Next page</button>
             </div>
-            <button class="btn btn-danger" id="btnmainmenu">返回主菜单</button>
+            <button class="btn btn-danger" id="btnmainmenu">Back to Main Menu</button>
         </ul>
         
     </div>
