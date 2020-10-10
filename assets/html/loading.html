@@ -7,7 +7,7 @@
     <script src="/js/jquery-3.4.1.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="/js/bootstrap.min.js"></script>
-    <title>加载中</title>
+    <title>Loading</title>
     <style>
         html, body{
             height: 100%;
@@ -93,7 +93,7 @@
             var x = setInterval(function(){
                 if($("#progressnum").text() == $("#progresstotal").text()){
                     progress = 0;
-                    $(".loadtype").text("加载音频中...");
+                    $(".loadtype").text("Loading audios...");
                     $("#progressnum").text(0);
                     $("#progresstotal").text(100);
                     loadAllAudio();
@@ -111,7 +111,7 @@
 <body>
     <div class="container">
         <div class="loadtype">
-            加载图片中...
+            Loading Pictures...
         </div>
         <div class="progress">
             <div class="progresstext text-info">
